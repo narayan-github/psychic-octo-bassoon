@@ -48,7 +48,7 @@ class TestHealthcareETL:
         """Test claims transformation"""
         raw_claims = etl.extract_claims()
         transformed_claims = etl.transform_claims(raw_claims)
-        
+
         assert isinstance(transformed_claims, list)
         assert len(transformed_claims) == len(raw_claims)
 
