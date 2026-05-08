@@ -1,6 +1,8 @@
 name: Healthcare CI
 
 on:
+  push:
+    branches: [ main ]
   pull_request:
 
 jobs:
