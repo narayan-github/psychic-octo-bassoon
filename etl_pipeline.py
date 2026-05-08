@@ -26,7 +26,7 @@ class HealthcareETL:
     def extract_claims(self) -> List[Dict[str, Any]]:
         """
         Extract healthcare claims from source database
-        
+
         Returns:
             List of claim dictionaries
         """
@@ -62,18 +62,20 @@ class HealthcareETL:
         ]
         return sample_claims
 
-    def transform_claims(self, claims: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def transform_claims(
+        self, claims: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """
         Transform and validate healthcare claims
-        
+
         Args:
             claims: List of raw claim dictionaries
-            
+
         Returns:
             List of transformed claim dictionaries
         """
         transformed_claims = []
-        
+
         for claim in claims:
             # Apply business logic transformations
             transformed_claim = {
@@ -88,16 +90,16 @@ class HealthcareETL:
                 'is_valid': self._validate_claim(claim)
             }
             transformed_claims.append(transformed_claim)
-        
+
         return transformed_claims
 
     def _validate_claim(self, claim: Dict[str, Any]) -> bool:
         """
         Validate a single claim
-        
+
         Args:
             claim: Claim dictionary to validate
-            
+
         Returns:
             True if valid, False otherwise
         """
@@ -113,10 +115,10 @@ class HealthcareETL:
     def load_claims(self, claims: List[Dict[str, Any]]) -> bool:
         """
         Load transformed claims into target database
-        
+
         Args:
             claims: List of transformed claim dictionaries
-            
+
         Returns:
             True if load successful, False otherwise
         """
@@ -133,7 +135,7 @@ class HealthcareETL:
     def run_pipeline(self) -> Dict[str, Any]:
         """
         Execute the complete ETL pipeline
-        
+
         Returns:
             Dictionary with pipeline execution results
         """
@@ -143,25 +145,25 @@ class HealthcareETL:
             'loaded': 0,
             'success': False
         }
-        
+
         try:
             # Extract
             claims = self.extract_claims()
             results['extracted'] = len(claims)
-            
+
             # Transform
             transformed_claims = self.transform_claims(claims)
             results['transformed'] = len(transformed_claims)
-            
+
             # Load
             load_success = self.load_claims(transformed_claims)
             if load_success:
                 results['loaded'] = len(transformed_claims)
                 results['success'] = True
-            
+
         except Exception as e:
             print(f"Pipeline error: {e}")
-        
+
         return results
 
 
@@ -169,13 +171,13 @@ def main():
     """Main entry point for the ETL pipeline"""
     etl = HealthcareETL()
     results = etl.run_pipeline()
-    
+
     print("\n=== Pipeline Results ===")
     print(f"Extracted: {results['extracted']} claims")
     print(f"Transformed: {results['transformed']} claims")
     print(f"Loaded: {results['loaded']} claims")
     print(f"Success: {results['success']}")
-    
+
     return results
 
 

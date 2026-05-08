@@ -25,10 +25,10 @@ class TestHealthcareETL:
     def test_extract_claims(self, etl):
         """Test claims extraction returns expected data structure"""
         claims = etl.extract_claims()
-        
+
         assert isinstance(claims, list)
         assert len(claims) > 0
-        
+
         # Verify structure of first claim
         first_claim = claims[0]
         assert 'claim_id' in first_claim
@@ -51,12 +51,13 @@ class TestHealthcareETL:
         
         assert isinstance(transformed_claims, list)
         assert len(transformed_claims) == len(raw_claims)
-        
+
         # Verify transformation added new fields
         first_transformed = transformed_claims[0]
         assert 'processed_date' in first_transformed
         assert 'is_valid' in first_transformed
-        assert first_transformed['status'] == first_transformed['status'].upper()
+        status_upper = first_transformed['status'].upper()
+        assert first_transformed['status'] == status_upper
 
     def test_validate_claim_valid(self, etl):
         """Test validation of a valid claim"""
@@ -91,7 +92,7 @@ class TestHealthcareETL:
             'amount': 0
         }
         assert etl._validate_claim(invalid_claim) is False
-        
+
         invalid_claim_negative = {
             'claim_id': 'CLM001',
             'procedure_code': '99213',
@@ -123,7 +124,7 @@ class TestHealthcareETL:
     def test_run_pipeline_complete_flow(self, etl):
         """Test complete pipeline execution"""
         results = etl.run_pipeline()
-        
+
         assert isinstance(results, dict)
         assert 'extracted' in results
         assert 'transformed' in results
@@ -137,23 +138,25 @@ class TestHealthcareETL:
     def test_run_pipeline_counts_match(self, etl):
         """Test that extracted, transformed, and loaded counts match"""
         results = etl.run_pipeline()
-        assert results['extracted'] == results['transformed'] == results['loaded']
+        assert (
+            results['extracted'] == results['transformed'] == results['loaded']
+        )
 
     def test_transform_preserves_claim_ids(self, etl):
         """Test that transformation preserves claim IDs"""
         raw_claims = etl.extract_claims()
         transformed_claims = etl.transform_claims(raw_claims)
-        
+
         raw_ids = [claim['claim_id'] for claim in raw_claims]
         transformed_ids = [claim['claim_id'] for claim in transformed_claims]
-        
+
         assert raw_ids == transformed_ids
 
     def test_transform_validates_claims(self, etl):
         """Test that transformation marks claims as valid/invalid"""
         raw_claims = etl.extract_claims()
         transformed_claims = etl.transform_claims(raw_claims)
-        
+
         # All sample claims should be valid
         for claim in transformed_claims:
             assert 'is_valid' in claim
@@ -163,7 +166,7 @@ class TestHealthcareETL:
         """Test that transformation adds processed date"""
         raw_claims = etl.extract_claims()
         transformed_claims = etl.transform_claims(raw_claims)
-        
+
         for claim in transformed_claims:
             assert 'processed_date' in claim
             assert claim['processed_date'] == '2024-01-20'
@@ -171,7 +174,7 @@ class TestHealthcareETL:
     def test_extract_returns_dict_values(self, etl):
         """Test that extraction returns proper data types"""
         claims = etl.extract_claims()
-        
+
         for claim in claims:
             assert isinstance(claim, dict)
             assert isinstance(claim['claim_id'], str)
@@ -186,6 +189,6 @@ class TestHealthcareETL:
         """Test that transformation converts status to uppercase"""
         raw_claims = etl.extract_claims()
         transformed_claims = etl.transform_claims(raw_claims)
-        
+
         for claim in transformed_claims:
             assert claim['status'].isupper()
